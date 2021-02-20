@@ -1,0 +1,29 @@
+{
+  "name": "Mcaewa",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Ewan McAndrew",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "node_modules/.bin/webpack-dev-server --mode development --open --hot",
+    "build": "node_modules/.bin/webpack --mode production"
+  },
+  "dependencies": {
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.17",
+    "@babel/plugin-transform-runtime": "^7.12.17",
+    "@babel/preset-env": "^7.12.17",
+    "@babel/preset-react": "^7.12.13",
+    "babel-loader": "^8.2.2",
+    "css-loader": "^5.0.2",
+    "html-webpack-plugin": "^5.2.0",
+    "style-loader": "^2.0.0",
+    "webpack": "^5.23.0",
+    "webpack-cli": "3.3.12",
+    "webpack-dev-server": "^3.11.2"
+  }
+}
