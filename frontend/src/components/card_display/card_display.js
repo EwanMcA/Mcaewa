@@ -1,9 +1,12 @@
 import React from "react";
 import { Card } from "antd";
 import "antd/dist/antd.css";
+import times from "lodash/times";
+
 
 import styles from "./card_display.scss";
 import placeholder from "./placeholder.jpeg";
+import Tesselate from "../tessellate";
 
 const { Meta } = Card;
 
@@ -30,19 +33,27 @@ const CARDS = [
   }
 ];
 
-const CardDisplay = () => (
-  <div className={styles.cardDisplay}>
-    { CARDS.map((card, idx) => (
-      <div key={idx} className={styles.siteCard}>
-        <Card
-          hoverable
-          cover={card.cover}
-        >
-          <Meta title={card.title} description={card.description} />
-        </Card>
+const CardDisplay = () => {
+  const refs = times(CARDS.length, React.createRef);
+
+  return (
+    <>
+      <Tesselate rippleRefs={refs}/>
+      <div className={styles.cardDisplay}>
+        { CARDS.map((card, idx) => (
+          <div key={idx} ref={refs[idx]} className={styles.cardWrapper}>
+            <Card
+              hoverable
+              cover={card.cover}
+              style={{ backgroundColor: "#CCF" }}
+            >
+              <Meta title={card.title} description={card.description} />
+            </Card>
+          </div>
+        ))}
       </div>
-    ))}
-  </div>
-);
+    </>
+  );
+};
 
 export default CardDisplay;
