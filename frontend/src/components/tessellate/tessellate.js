@@ -78,7 +78,12 @@ const move = (canvas, points, delaunay, e) => {
     ctx.save();
     ctx.globalAlpha = 0.2;
     forEachTriangle(points, delaunay, (i, v) => {
-      if (pointInTriangle({ x: canvasMouseX, y: canvasMouseY}, { x: v[0][0], y: v[0][1] }, { x: v[1][0], y: v[1][1] }, { x: v[2][0], y: v[2][1] })) {
+      if (pointInTriangle(
+        { x: canvasMouseX, y: canvasMouseY },
+        { x: v[0][0], y: v[0][1] },
+        { x: v[1][0], y: v[1][1] },
+        { x: v[2][0], y: v[2][1] }
+      )) {
         fillTriangle(ctx, v);
       }
     });
@@ -111,29 +116,36 @@ const ripple = (canvas, points, delaunay, rippleCounterRef, e) => {
   }, 50);
 };
 
-const Tessellate = ({rippleRefs}) => {
+const Tessellate = ({density, rippleRefs}) => {
   const rippleCounterRef = useRef(0);
-  const points = generatePoints(250);
+  const points = generatePoints(density);
   points.push([0, 0], [1000, 0], [0, 1000], [1000, 1000]);
   const delaunay = Delaunator.from(points);
+  let hoverTimeout;
 
   useEffect(() => {
     const canvas = document.getElementById("tessellate");
     const ctx = canvas.getContext("2d");
+
     const bindedMove = (e) => move(canvas, points, delaunay, e);
     const throttledMove = throttle(bindedMove, 50);
+
     const bindedRipple = (e) => ripple(canvas, points, delaunay, rippleCounterRef, e);
-    window.addEventListener("mousemove", throttledMove);
-    window.addEventListener("click", bindedRipple);
+    const hoverRipple = (e) => hoverTimeout = setTimeout(() => bindedRipple(e), 500);
+
+    addEventListener("mousemove", throttledMove);
+    addEventListener("click", bindedRipple);
     rippleRefs.forEach((ref) => {
-      ref.current.addEventListener("mouseenter", bindedRipple);
+      ref.current.addEventListener("mouseenter", hoverRipple);
+      ref.current.addEventListener("mouseout", () => clearTimeout(hoverTimeout));
     });
     const fadeInterval = setInterval(() => fade(ctx, canvas.width, canvas.height), 50);
+
     return () => {
-      window.removeEventListener("mousemove", throttledMove);
-      window.removeEventListener("click", bindedRipple);
+      removeEventListener("mousemove", throttledMove);
+      removeEventListener("click", bindedRipple);
       rippleRefs.forEach((ref) => {
-        ref.current.removeEventListener("mouseover", bindedRipple);
+        ref.current.removeEventListener("mouseenter", hoverRipple);
       });
       clearInterval(fadeInterval);
     };
@@ -143,10 +155,12 @@ const Tessellate = ({rippleRefs}) => {
 };
 
 Tessellate.propTypes = {
+  density: PropTypes.number,
   rippleRefs: PropTypes.arrayOf(PropTypes.object),
 };
 
-Tessellate.defaultypes = {
+Tessellate.defaultProps = {
+  density: 250,
   rippleRefs: {},
 };
 
