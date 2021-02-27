@@ -27,6 +27,11 @@ const CARDS = [
     cover: (<img alt="planet" src={placeholder}/>),
   },
   {
+    title: "GravSim",
+    description: "Gravity Simulation Game",
+    cover: (<img alt="planet" src={placeholder}/>),
+  },
+  {
     title: "EmagDrac",
     description: "Build you own card game",
     cover: (<img alt="cards" src={placeholder}/>),

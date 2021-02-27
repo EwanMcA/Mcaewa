@@ -132,12 +132,13 @@ const Tessellate = ({density, rippleRefs}) => {
 
     const bindedRipple = (e) => ripple(canvas, points, delaunay, rippleCounterRef, e);
     const hoverRipple = (e) => hoverTimeout = setTimeout(() => bindedRipple(e), 500);
+    const clearHoverRipple = () => clearTimeout(hoverTimeout);
 
     addEventListener("mousemove", throttledMove);
     addEventListener("click", bindedRipple);
     rippleRefs.forEach((ref) => {
       ref.current.addEventListener("mouseenter", hoverRipple);
-      ref.current.addEventListener("mouseout", () => clearTimeout(hoverTimeout));
+      ref.current.addEventListener("mouseleave", clearHoverRipple);
     });
     const fadeInterval = setInterval(() => fade(ctx, canvas.width, canvas.height), 50);
 
@@ -146,6 +147,7 @@ const Tessellate = ({density, rippleRefs}) => {
       removeEventListener("click", bindedRipple);
       rippleRefs.forEach((ref) => {
         ref.current.removeEventListener("mouseenter", hoverRipple);
+        ref.current.removeEventListener("mouseleave", clearHoverRipple);
       });
       clearInterval(fadeInterval);
     };

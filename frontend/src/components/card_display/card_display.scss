@@ -1,12 +1,14 @@
 .cardDisplay {
   display: flex;
-  justify-content: space-evenly;
-  padding: 10vh 10vw;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 20vh 15vw;
   width: 100vw;
 }
 
 .cardWrapper {
   border-radius: 1rem;
+  margin: 4rem 4rem 0 4rem;
   overflow: hidden;
   width: 350px;
 }
