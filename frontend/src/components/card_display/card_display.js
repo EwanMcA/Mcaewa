@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "@reach/router";
 import { Card } from "antd";
 import "antd/dist/antd.css";
 import times from "lodash/times";
@@ -15,26 +16,31 @@ const CARDS = [
     title: "Dev Page",
     description: "Who built this?",
     cover: (<img alt="personal" src={placeholder}/>),
+    link: "dev",
   },
   {
     title: "Dash",
     description: "Configurable Dashboard App",
     cover: (<img alt="dashboard" src={placeholder}/>),
+    link: "dash",
   },
   {
     title: "PlanIt",
     description: "Turn based civ builder game",
     cover: (<img alt="planet" src={placeholder}/>),
+    link: "planit",
   },
   {
     title: "GravSim",
     description: "Gravity Simulation Game",
     cover: (<img alt="planet" src={placeholder}/>),
+    link: "gravsim",
   },
   {
     title: "EmagDrac",
     description: "Build you own card game",
     cover: (<img alt="cards" src={placeholder}/>),
+    link: "emagdrac",
   }
 ];
 
@@ -46,7 +52,7 @@ const CardDisplay = () => {
       <Tesselate rippleRefs={refs}/>
       <div className={styles.cardDisplay}>
         { CARDS.map((card, idx) => (
-          <div key={idx} ref={refs[idx]} className={styles.cardWrapper}>
+          <Link to={card.link} key={idx} ref={refs[idx]} className={styles.cardWrapper}>
             <Card
               hoverable
               cover={card.cover}
@@ -54,7 +60,7 @@ const CardDisplay = () => {
             >
               <Meta title={card.title} description={card.description} />
             </Card>
-          </div>
+          </Link>
         ))}
       </div>
     </>
