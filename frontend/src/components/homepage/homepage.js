@@ -1,13 +1,13 @@
 import React from "react";
 import "antd/dist/antd.css";
 
-import styles from "./app.scss";
+import styles from "./homepage.scss";
 import CardDisplay from "../card_display";
 
-const App = () => (
+const Homepage = () => (
   <div className={styles.homepage}>
     <CardDisplay/>
   </div>
 );
 
-export default App;
+export default Homepage;
