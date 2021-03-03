@@ -1,20 +1,20 @@
 import React from "react";
 import { render } from "react-dom";
-import App from "./components/app";
 import { Router } from "@reach/router";
 
-const rootEl = document.getElementById("app");
+import App from "./components/app";
+import ComingSoon from "./components/coming_soon";
 
-const Placeholder = ({path}) => <h1 >{ path }</h1>;
+const rootEl = document.getElementById("app");
 
 render(
   <Router>
     <App path="/"/>
-    <Placeholder path="/dev"/>
-    <Placeholder path="/dash"/>
-    <Placeholder path="/planit"/>
-    <Placeholder path="/gravsim"/>
-    <Placeholder path="/emagdrac"/>
+    <ComingSoon path="/dev"/>
+    <ComingSoon path="/dash"/>
+    <ComingSoon path="/planit"/>
+    <ComingSoon path="/gravsim"/>
+    <ComingSoon path="/emagdrac"/>
   </Router>,
   rootEl,
 );

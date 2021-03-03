@@ -57,6 +57,9 @@ module.exports = function (webpackEnv) {
         filename: "index.html",  //target html
         template: "./src/index.html" //source html
       }),
-    ]
+    ],
+    devServer: {
+      historyApiFallback: true,
+    }
   };
 };
