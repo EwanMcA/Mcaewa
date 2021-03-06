@@ -1,1 +1,1 @@
-export { default } from "./card_display.js";
+export { default } from "./card_display";
