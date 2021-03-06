@@ -1879,6 +1879,11 @@ css-loader@^5.0.2:
     schema-utils "^3.0.0"
     semver "^7.3.4"
 
+css-mediaquery@^0.1.2:
+  version "0.1.2"
+  resolved "https://mintel.jfrog.io/mintel/api/npm/npm/css-mediaquery/-/css-mediaquery-0.1.2.tgz#6a2c37344928618631c54bd33cedd301da18bea0"
+  integrity sha1-aiw3NEkoYYYxxUvTPO3TAdoYvqA=
+
 css-select@^2.0.2:
   version "2.1.0"
   resolved "https://mintel.jfrog.io/mintel/api/npm/npm/css-select/-/css-select-2.1.0.tgz#6a34653356635934a81baca68d0255432105dbef"
@@ -2985,6 +2990,11 @@ http-proxy@^1.17.0:
     follow-redirects "^1.0.0"
     requires-port "^1.0.0"
 
+hyphenate-style-name@^1.0.0:
+  version "1.0.4"
+  resolved "https://mintel.jfrog.io/mintel/api/npm/npm/hyphenate-style-name/-/hyphenate-style-name-1.0.4.tgz#691879af8e220aea5750e8827db4ef62a54e361d"
+  integrity sha1-aRh5r44iCupXUOiCfbTvYqVONh0=
+
 iconv-lite@0.4.24:
   version "0.4.24"
   resolved "https://mintel.jfrog.io/mintel/api/npm/npm/iconv-lite/-/iconv-lite-0.4.24.tgz#2022b4b25fbddc21d2f524974a474aafe733908b"
@@ -3555,6 +3565,13 @@ map-visit@^1.0.0:
   integrity sha1-7Nyo8TFE5mDxtb1B8S80edmN+48=
   dependencies:
     object-visit "^1.0.0"
+
+matchmediaquery@^0.3.0:
+  version "0.3.1"
+  resolved "https://mintel.jfrog.io/mintel/api/npm/npm/matchmediaquery/-/matchmediaquery-0.3.1.tgz#8247edc47e499ebb7c58f62a9ff9ccf5b815c6d7"
+  integrity sha1-gkftxH5Jnrt8WPYqn/nM9bgVxtc=
+  dependencies:
+    css-mediaquery "^0.1.2"
 
 media-typer@0.3.0:
   version "0.3.0"
@@ -4640,6 +4657,16 @@ react-lifecycles-compat@^3.0.4:
   resolved "https://mintel.jfrog.io/mintel/api/npm/npm/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
   integrity sha1-TxonOv38jzSIqMUWv9p4+HI1I2I=
 
+react-responsive@^8.2.0:
+  version "8.2.0"
+  resolved "https://mintel.jfrog.io/mintel/api/npm/npm/react-responsive/-/react-responsive-8.2.0.tgz#e0ffb306cfd8f38c9c12e26725b9e1245fa9debc"
+  integrity sha1-4P+zBs/Y84ycEuJnJbnhJF+p3rw=
+  dependencies:
+    hyphenate-style-name "^1.0.0"
+    matchmediaquery "^0.3.0"
+    prop-types "^15.6.1"
+    shallow-equal "^1.1.0"
+
 react@^17.0.1:
   version "17.0.1"
   resolved "https://mintel.jfrog.io/mintel/api/npm/npm/react/-/react-17.0.1.tgz#6e0600416bd57574e3f86d92edba3d9008726127"
@@ -5059,6 +5086,11 @@ setprototypeof@1.1.1:
   version "1.1.1"
   resolved "https://mintel.jfrog.io/mintel/api/npm/npm/setprototypeof/-/setprototypeof-1.1.1.tgz#7e95acb24aa92f5885e0abef5ba131330d4ae683"
   integrity sha1-fpWsskqpL1iF4KvvW6ExMw1K5oM=
+
+shallow-equal@^1.1.0:
+  version "1.2.1"
+  resolved "https://mintel.jfrog.io/mintel/api/npm/npm/shallow-equal/-/shallow-equal-1.2.1.tgz#4c16abfa56043aa20d050324efa68940b0da79da"
+  integrity sha1-TBar+lYEOqINBQMk76aJQLDaedo=
 
 shallowequal@^1.0.2, shallowequal@^1.1.0:
   version "1.1.0"

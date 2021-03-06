@@ -8,7 +8,7 @@ import ComingSoon from "./components/coming_soon";
 const rootEl = document.getElementById("app");
 
 render(
-  <Router style={{ height: "100%" }}>
+  <Router>
     <Homepage path="/"/>
     <ComingSoon path="/dev"/>
     <ComingSoon path="/dash"/>

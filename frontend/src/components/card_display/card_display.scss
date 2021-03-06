@@ -2,10 +2,9 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  padding: 20vh 0;
   max-width: 70vw;
-  position: absolute;
-  top: 0vh;
+  min-height: 100vh;
+  padding: 20vh 0;
 }
 
 @media screen and (max-width: 1800px) {
@@ -25,7 +24,7 @@
 
 .cardWrapper {
   border-radius: 1rem;
-  margin: 4rem 4rem 0 4rem;
+  margin: 4rem 4rem 1rem 4rem;
   overflow: hidden;
   max-width: 350px;
 }

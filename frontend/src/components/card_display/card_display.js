@@ -8,6 +8,7 @@ import times from "lodash/times";
 import styles from "./card_display.scss";
 import placeholder from "./placeholder.jpeg";
 import Tesselate from "../tessellate";
+import { DEVICES, useBreakpoint } from "../use_media_qry";
 
 const { Meta } = Card;
 
@@ -46,10 +47,11 @@ const CARDS = [
 
 const CardDisplay = () => {
   const refs = times(CARDS.length, React.createRef);
+  const device = useBreakpoint();
 
   return (
     <>
-      <Tesselate rippleRefs={refs}/>
+      <Tesselate density={device < DEVICES.DESKTOP ? 100 : 250} rippleRefs={refs}/>
       <div className={styles.cardDisplay}>
         { CARDS.map((card, idx) => (
           <Link to={card.link} key={idx} ref={refs[idx]} className={styles.cardWrapper}>
