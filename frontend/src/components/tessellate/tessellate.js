@@ -134,6 +134,7 @@ const Tessellate = ({density, rippleRefs}) => {
     const hoverRipple = (e) => hoverTimeout = setTimeout(() => bindedRipple(e), 500);
     const clearHoverRipple = () => clearTimeout(hoverTimeout);
 
+    // Add intervals/listeners
     addEventListener("mousemove", throttledMove);
     addEventListener("click", bindedRipple);
     rippleRefs.forEach((ref) => {
@@ -142,12 +143,15 @@ const Tessellate = ({density, rippleRefs}) => {
     });
     const fadeInterval = setInterval(() => fade(ctx, canvas.width, canvas.height), 50);
 
+    // Clean up intervals/listeners
     return () => {
       removeEventListener("mousemove", throttledMove);
       removeEventListener("click", bindedRipple);
       rippleRefs.forEach((ref) => {
-        ref.current.removeEventListener("mouseenter", hoverRipple);
-        ref.current.removeEventListener("mouseleave", clearHoverRipple);
+        if (ref.current) {
+          ref.current.removeEventListener("mouseenter", hoverRipple);
+          ref.current.removeEventListener("mouseleave", clearHoverRipple);
+        }
       });
       clearInterval(fadeInterval);
     };
