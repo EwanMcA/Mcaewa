@@ -29,6 +29,13 @@
   max-width: 350px;
 }
 
+.coverPic {
+  max-width: 275px;
+  max-height: 185px;
+  object-fit: cover;
+  object-position: top;
+}
+
 .siteCard {
   background-color: red;
 }

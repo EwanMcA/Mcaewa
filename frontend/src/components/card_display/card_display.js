@@ -6,6 +6,10 @@ import times from "lodash/times";
 
 
 import styles from "./card_display.scss";
+import dash from "./dash.png";
+import diamond from "./coolDiamond.png";
+import gravSim from "./gravSim.png";
+import me from "./me.jpg";
 import placeholder from "./placeholder.jpeg";
 import Tesselate from "../tessellate";
 import { DEVICES, useBreakpoint } from "../use_media_qry";
@@ -16,33 +20,33 @@ const CARDS = [
   {
     title: "Dev Page",
     description: "Who built this?",
-    cover: (<img alt="personal" src={placeholder}/>),
+    cover: (<img alt="avatar" className={styles.coverPic} src={me}/>),
     link: "dev",
-  },
-  {
-    title: "Dash",
-    description: "Configurable Dashboard App",
-    cover: (<img alt="dashboard" src={placeholder}/>),
-    link: "dash",
   },
   {
     title: "PlanIt",
     description: "Turn based civ builder game",
-    cover: (<img alt="planet" src={placeholder}/>),
+    cover: (<img alt="planet" className={styles.coverPic} src={placeholder}/>),
     link: "planit",
-  },
-  {
-    title: "GravSim",
-    description: "Gravity Simulation Game",
-    cover: (<img alt="planet" src={placeholder}/>),
-    link: "gravsim",
   },
   {
     title: "EmagDrac",
     description: "Build you own card game",
-    cover: (<img alt="cards" src={placeholder}/>),
+    cover: (<img alt="cards" className={styles.coverPic} src={diamond}/>),
     link: "emagdrac",
-  }
+  },
+  {
+    title: "GravSim",
+    description: "Gravity Simulation Game",
+    cover: (<img alt="gravity" className={styles.coverPic} src={gravSim}/>),
+    link: "gravsim",
+  },
+  {
+    title: "Dash",
+    description: "Configurable Dashboard App",
+    cover: (<img alt="dashboard" className={styles.coverPic} src={dash}/>),
+    link: "dash",
+  },
 ];
 
 const CardDisplay = () => {
