@@ -29,15 +29,23 @@ class Renderer {
   }
 
   draw(vertices) {
+    const scale = this.getScale();
     const transform = this.getTransform();
     this.ctx.beginPath();
-    this.ctx.moveTo(transform[0] + vertices[0][0], transform[1] + vertices[0][1]);
+    this.ctx.moveTo(
+      transform[0] + vertices[0][0] * scale,
+      transform[1] + vertices[0][1] * scale,
+    );
     for (let i = 1; i < vertices.length; ++i) {
       this.ctx.lineTo(
-        transform[0] + vertices[i][0], transform[1] + vertices[i][1]
+        transform[0] + vertices[i][0] * scale,
+        transform[1] + vertices[i][1] * scale,
       );
     }
-    this.ctx.lineTo(transform[0] + vertices[0][0], transform[1] + vertices[0][1]);
+    this.ctx.lineTo(
+      transform[0] + vertices[0][0] * scale,
+      transform[1] + vertices[0][1] * scale,
+    );
     this.ctx.fill();
     this.ctx.stroke();
   }
@@ -56,6 +64,14 @@ class Renderer {
 
   popTransform() {
     return this.transform.pop();
+  }
+
+  getScale() {
+    let scale = this.scale.pop();
+    if (!scale) {
+      return 1;
+    }
+    return scale;
   }
 
   pushScale(f) {
