@@ -18,9 +18,7 @@ module.exports = function (webpackEnv) {
         exclude: /node_modules/,
         use: {
           loader: "babel-loader",
-          options: {
-            presets: ["@babel/preset-react"]
-          }
+          options: { presets: ["@babel/preset-react"] }
         }
       }, {
         test: /\.css$/i,
@@ -29,19 +27,14 @@ module.exports = function (webpackEnv) {
       {
         test: /\.s[ac]ss$/i,
         use: [
-          // JS strings to `style` nodes
           "style-loader",
-          // CSS to CommonJS
           {
             loader: "css-loader",
             options: {
-              modules: {
-                localIdentName: "[name]__[local]___[hash:base64:5]",
-              },
+              modules: { localIdentName: "[name]__[local]___[hash:base64:5]" },
               sourceMap: false,
             },
           },
-          // Sass to CSS
           "sass-loader",
         ],
       },

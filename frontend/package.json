@@ -26,6 +26,8 @@
     "@babel/plugin-transform-runtime": "^7.12.17",
     "@babel/preset-env": "^7.12.17",
     "@babel/preset-react": "^7.12.13",
+    "@babylonjs/core": "^4.2.0",
+    "@babylonjs/inspector": "^4.2.0",
     "babel-loader": "^8.2.2",
     "css-loader": "^5.0.2",
     "eslint": "^7.20.0",
