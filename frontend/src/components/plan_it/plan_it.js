@@ -5,8 +5,8 @@ import "@babylonjs/inspector";
 import "@babylonjs/loaders/glTF";
 import {
   ArcRotateCamera,
-  Color3,
   Engine,
+  Color3,
   HemisphericLight,
   MeshBuilder,
   Scene,
@@ -20,6 +20,11 @@ import water_col from "../../assets/textures/Water_001_SD/Water_001_COLOR.jpg";
 import water_norm from "../../assets/textures/Water_001_SD/Water_001_NORM.jpg";
 import water_spec from "../../assets/textures/Water_001_SD/Water_001_SPEC.jpg";
 import water_disp from "../../assets/textures/Water_001_SD/Water_001_DISP.png";
+import clayMountains from "../../assets/textures/clayMountains.png";
+import forest from "../../assets/textures/forest.png";
+import mountains from "../../assets/textures/mountains.png";
+import pasture from "../../assets/textures/pasture.png";
+import wheat from "../../assets/textures/wheat.png";
 
 import styles from "./plan_it.scss";
 
@@ -37,12 +42,12 @@ const TILES = [
   [-20, -34], [0, -34], [20, -34],
 ];
 
-const TILE_COLOURS = [
-  new Color3(0, 0.5, 0.2),
-  new Color3(0, 0.7, 0.2),
-  new Color3(0.6, 0.2, 0.1),
-  new Color3(0.5, 0.5, 0.5),
-  new Color3(0.8, 0.8, 0.4),
+const TILE_TEXTURES = [
+  clayMountains,
+  forest,
+  mountains,
+  pasture,
+  wheat,
 ];
 
 const setScene = () => {
@@ -55,7 +60,8 @@ const setScene = () => {
   camera.setTarget(Vector3.Zero());
   camera.attachControl(canvas, true);
   const light1 = new HemisphericLight("light1", new Vector3(1, 1, -1), scene);
-  light1.intensity = 0.75;
+  light1.specular = new Color3(0.5,0.5,1.0);
+  light1.intensity = 0.95;
 
   return { engine, scene };
 };
@@ -83,7 +89,7 @@ const createTiles = (scene) => {
   for (let i = 0; i < 19; ++i) {
     const tile = MeshBuilder.CreateDisc("disc", {radius: 11.5, tessellation: 6});
     const tileMat = new StandardMaterial("tile", scene);
-    tileMat.diffuseColor = TILE_COLOURS[Math.floor(Math.random() * Math.floor(TILE_COLOURS.length))];
+    tileMat.diffuseTexture = new Texture(TILE_TEXTURES[Math.floor(Math.random() * Math.floor(TILE_TEXTURES.length))], scene);
     tile.position = new Vector3(TILES[i][0], TILES[i][1], -5);
     tile.rotation = new Vector3(0, 0, Math.PI / 2);
     tile.material = tileMat;
