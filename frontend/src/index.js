@@ -14,6 +14,7 @@ render(
     <ComingSoon path="/dev"/>
     <ComingSoon path="/dash"/>
     <PlanIt path="/planit"/>
+    <PlanIt path="/planit/:gameId"/>
     <ComingSoon path="/gravsim"/>
     <ComingSoon path="/emagdrac"/>
   </Router>,

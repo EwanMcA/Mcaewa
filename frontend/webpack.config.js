@@ -1,4 +1,5 @@
 const path = require("path");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 
 
@@ -9,8 +10,9 @@ module.exports = function (webpackEnv) {
     devtool: isEnvProduction ? "source-map" : "cheap-module-source-map",
     entry: "./src/index.js",
     output: {
-      path: path.join(__dirname, "/dist"),
-      filename: "index_bundle.[contenthash:8].js"
+      path: path.resolve(__dirname, "/dist"),
+      publicPath: "/",
+      filename: "index_bundle.js"
     },
     module: {
       rules: [{
@@ -50,9 +52,11 @@ module.exports = function (webpackEnv) {
         filename: "index.html",  //target html
         template: "./src/index.html" //source html
       }),
+      new CleanWebpackPlugin(),
     ],
     devServer: {
       historyApiFallback: true,
+      publicPath: "/",
       proxy: {
         "/api": {
           target: "http://127.0.0.1:8000",
