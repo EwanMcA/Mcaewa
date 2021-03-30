@@ -9,9 +9,11 @@ import {
   TextBlock,
 } from "@babylonjs/gui/2D";
 import noop from "lodash/noop";
+import { assignIn } from "lodash";
 
 import { createGame, getUserGames, joinGame, leaveGame, startGame } from "./api";
 import GAME_STATE from "./game_state";
+import { DEVICES } from "../use_media_qry";
 import styles from "./plan_it.scss";
 
 import background from "../../assets/textures/fieldPath.jpg";
@@ -20,37 +22,37 @@ const MAX_PLAYERS = 4;
 
 
 class GameMenu {
-  constructor(userId, setUserId, gameScene, gameId) {
+  constructor(navigate, device, userId, setUserId, gameState, gameScene, gameId) {
+    this.navigate = navigate;
+    this.device = device;
     this.userId = userId;
     this.setUserId = setUserId;
+    this.gameState = gameState;
     this.gameScene = gameScene;
     this.gameId = gameId;
     this.games = [];
   }
 
   async createGame(playerName) {
-    this.gameState = await createGame(this.userId, playerName);
+    assignIn(this.gameState, await createGame(this.userId, playerName));
     if ("user_id" in this.gameState) {
       console.log("resetting user id");
       this.setUserId(this.gameState["user_id"]);
     }
     this.gameId = this.gameState.id;
-    window.location.href = `planit/${this.gameState.id}`;
+    this.navigate(`/planit/${this.gameState.id}`);
   }
 
-  async goToMenu() {
-    const scene = this.gameScene.newScene();
-    scene.__background = new Layer("menuBackground", background, scene, true);
-    this.games = (await getUserGames(this.userId))["games"];
-
-    this.guiMenu = AdvancedDynamicTexture.CreateFullscreenUI("UI");
-    this.guiMenu.idealHeight = 720;
-
+  createMainMenu(mobileMenu=false) {
     const menuPanel = new StackPanel();
-    menuPanel.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
-    menuPanel.width = 0.5;
+    if (mobileMenu) {
+      menuPanel.width = 0.85;
+    } else {
+      menuPanel.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+      menuPanel.width = 0.5;
+    }
     menuPanel.height = 0.9;
-    this.guiMenu.addControl(menuPanel);
+
     const title = this.addTextBlock(
       menuPanel, {
         height: "150px", top: "0px", fontSize: 48, text: "Title"
@@ -69,14 +71,25 @@ class GameMenu {
     this.addGUIButton("options", menuPanel, {
       text: "Options (tbd lol)", top: "400px", padding: "20px", callback: () => {},
     });
+    if (mobileMenu) {
+      this.addGUIButton("games_link", menuPanel, {
+        text: "Your Games", top: "500px", padding: "20px", callback: () => this.goToGamesList(),
+      });
+    }
 
+    return menuPanel;
+  }
+
+  createGamesList(mobileMenu=false) {
+    // TODO put it all on one panel and return that (don't refer to this.guiMenu here)
+    const panelWidth = mobileMenu ? 0.85 : 0.4;
     const gamesHeader = this.addTextBlock(
       this.guiMenu, {
         top: "0px",
         fontSize: 32,
         text: "Your Games",
-        left: "-150px",
-        width: "500px",
+        //left: "-150px",
+        width: panelWidth,
       }
     );
     gamesHeader.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
@@ -85,8 +98,8 @@ class GameMenu {
     gamesViewer.thickness = 0;
     gamesViewer.height = 0.7;
     gamesViewer.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
-    gamesViewer.width = "500px";
-    gamesViewer.left = "-150px";
+    gamesViewer.width = panelWidth;
+    //gamesViewer.left = "-150px";
     const gamesPanel = new StackPanel();
     this.guiMenu.addControl(gamesViewer);
     gamesViewer.addControl(gamesPanel);
@@ -95,7 +108,7 @@ class GameMenu {
       const waitingFor = game.player_turn === game.player_name ? "Your Turn" : `Waiting for ${game.player_turn}`;
       this.addGUIButton(game.id, gamesPanel, {
         background: game.player_turn === game.player_name ? styles.yourTurnColor : styles.buttonColor,
-        callback: () => { window.location.href = `planit/${game.id}`; },
+        callback: () => { this.navigate(`/planit/${game.id}`); },
         text:
         `${gameStatus}        ${waitingFor}        ${game.players.join(" vs ")}`,
         fontSize: 16,
@@ -106,21 +119,54 @@ class GameMenu {
         height: "75px"
       });
     });
-
-    this.gameScene.setScene(scene);
-    this.state = GAME_STATE.MENU;
   }
 
-  async goToLobby(gameState=this.gameState) {
-    this.gameState = gameState;
+  async goToMenu() {
     const scene = this.gameScene.newScene();
     scene.__background = new Layer("menuBackground", background, scene, true);
 
     this.guiMenu = AdvancedDynamicTexture.CreateFullscreenUI("UI");
     this.guiMenu.idealHeight = 720;
 
+    if (this.device >= DEVICES.DESKTOP) {
+      this.games = (await getUserGames(this.userId))["games"];
+      this.guiMenu.addControl(this.createMainMenu());
+      this.createGamesList();
+    } else {
+      this.guiMenu.addControl(this.createMainMenu(true));
+    }
+
+    this.gameScene.setScene(scene);
+    this.gameState.state = GAME_STATE.MENU;
+  }
+
+  async goToGamesList() {
+    const scene = this.gameScene.newScene();
+    scene.__background = new Layer("menuBackground", background, scene, true);
+    this.games = (await getUserGames(this.userId))["games"];
+
+    this.guiMenu = AdvancedDynamicTexture.CreateFullscreenUI("UI");
+    this.guiMenu.idealHeight = 720;
+
     this.addBackButton(async () => {
-      window.location.href = "../planit";
+      this.goToMenu();
+    });
+    this.createGamesList(true);
+
+    this.gameScene.setScene(scene);
+    this.gameState.state = GAME_STATE.GAMES_LIST;
+  }
+
+  async goToLobby() {
+    const scene = this.gameScene.newScene();
+    scene.__background = new Layer("menuBackground", background, scene, true);
+
+    console.log("goToLobby");
+    this.guiMenu = AdvancedDynamicTexture.CreateFullscreenUI("UI");
+    this.guiMenu.idealHeight = 720;
+
+    this.addBackButton(async () => {
+      this.navigate("/planit");
     });
     const leaveButton = this.addGUIButton(
       "leave_game", this.guiMenu, {
@@ -128,7 +174,7 @@ class GameMenu {
           await leaveGame(
             this.userId, this.gameState.id, this.gameState.player_name
           );
-          window.location.href = "../planit";
+          this.navigate("/planit");
         }, fontSize: 20, thickness: 1, width: 0.1, height: "40px"
       }
     );
@@ -174,7 +220,7 @@ class GameMenu {
     });
 
     this.gameScene.setScene(scene);
-    this.state = GAME_STATE.LOBBY;
+    this.gameState.state = GAME_STATE.LOBBY;
   }
 
   async goToJoin(playerName, gameId="Your game code...") {
@@ -201,7 +247,7 @@ class GameMenu {
     this.addGUIButton("join", this.guiMenu, {
       text: "Join", top: "400px",
       callback: async () => {
-        this.gameState = await joinGame(this.userId, gameIdInput.text, nameInput.text);
+        assignIn(this.gameState, await joinGame(this.userId, gameIdInput.text, nameInput.text));
         if (!this.gameState) {
           errorText.text = "Cannot find a game with the given code";
         } else if ("error" in this.gameState) {
@@ -213,13 +259,13 @@ class GameMenu {
             this.userId = this.gameState["user_id"];
           }
           this.gameId = this.gameState.id;
-          window.location.href = `planit/${this.gameState.id}`;
+          this.navigate(`/planit/${this.gameState.id}`);
         }
       }
     });
 
     this.gameScene.setScene(scene);
-    this.state = GAME_STATE.JOIN;
+    this.gameState.state = GAME_STATE.JOIN;
   }
 
   addGUIButton(name, parent, params) {

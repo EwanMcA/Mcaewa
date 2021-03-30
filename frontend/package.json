@@ -7,7 +7,7 @@
   "private": true,
   "scripts": {
     "lint": "eslint src/",
-    "start": "node_modules/.bin/webpack-dev-server --mode development --open --hot",
+    "start": "node_modules/.bin/webpack-dev-server --mode development --open --hot --host 0.0.0.0",
     "build": "node_modules/.bin/webpack --mode production"
   },
   "dependencies": {

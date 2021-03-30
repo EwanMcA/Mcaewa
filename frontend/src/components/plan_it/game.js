@@ -15,6 +15,8 @@ import {
   StackPanel,
 } from "@babylonjs/gui/2D";
 
+import { assignIn } from "lodash";
+
 import { fetchGame } from "./api";
 import { createBoard } from "./board";
 import GAME_STATE from "./game_state";
@@ -40,15 +42,26 @@ const createBackground = (scene) => {
 };
 
 class PlanItGame {
-  constructor(userId, setUserId, gameId) {
+  constructor(navigate, device, userId, setUserId, gameId) {
+    this.navigate = navigate;
+    this.device = device;
     this.canvas = document.getElementById("PlanIt");
     this.engine = new Engine(this.canvas, true);
     this.gameScene = new GameScene(this.engine, this.canvas);
+    this.gameState = {};
 
     this.numPlayers = 1;
     this.userId = userId;
     this.setUserId = setUserId;
-    this.gameMenu = new GameMenu(userId, setUserId, this.gameScene, gameId);
+    this.gameMenu = new GameMenu(
+      navigate,
+      device,
+      userId,
+      setUserId,
+      this.gameState,
+      this.gameScene,
+      gameId,
+    );
     setInterval(() => this.pollGameState(), 3000);
 
     if (gameId) {
@@ -81,13 +94,14 @@ class PlanItGame {
   }
 
   async pollGameState() {
-    if (this.state == GAME_STATE.LOBBY || this.state == GAME_STATE.GAME) {
+    if (this.gameState.state == GAME_STATE.LOBBY || this.gameState.state == GAME_STATE.GAME) {
       const gameState = await fetchGame(this.userId, this.gameId);
-      this.gameState = { ...this.gameState, ...gameState };
+      assignIn(this.gameState, gameState);
       console.log("gameState: ", this.gameState);
-      if (this.state == GAME_STATE.LOBBY && gameState.started) {
-        window.location.href = `planit/${this.gameState.id}`;
-      } else if (this.state == GAME_STATE.LOBBY) {
+      if (this.gameState.state == GAME_STATE.LOBBY && gameState.started) {
+        this.goToGame();
+      } else if (this.gameState.state == GAME_STATE.LOBBY) {
+        // TODO refresh function
         this.gameMenu.goToLobby(this.gameState);
       }
     }
@@ -95,12 +109,12 @@ class PlanItGame {
 
   async navToGame(gameId) {
     this.gameId = gameId;
-    this.gameState = await fetchGame(this.userId, gameId);
+    assignIn(this.gameState, await fetchGame(this.userId, gameId));
 
     if (this.gameState.started) {
       this.goToGame();
     } else {
-      this.gameMenu.goToLobby(this.gameState);
+      this.gameMenu.goToLobby();
     }
   }
 
@@ -137,7 +151,7 @@ class PlanItGame {
     this.engine.hideLoadingUI();
 
     this.gameScene.setScene(scene);
-    this.state = GAME_STATE.GAME;
+    this.gameState.state = GAME_STATE.GAME;
   }
 }
 

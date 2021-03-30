@@ -1,17 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { Layout } from "antd";
+import { useNavigate } from "@reach/router"
 
 import PlanItGame from "./game";
 import useLocalStorage from "../../utils/useLocalStorage";
 import { newUser } from "./api";
 import styles from "./plan_it.scss";
+import { useBreakpoint } from "../use_media_qry";
 
 const { Content, Sider } = Layout;
 
 const PlanIt = ({ gameId }) => {
-  const [collapsed, setCollapsed] = useState(true);
+  const device = useBreakpoint();
+  const navigate = useNavigate();
   const [game, setGame] = useState({});
   const [userId, setUserId] = useLocalStorage("user_id");
+  const [collapsed, setCollapsed] = useState(true);
 
   useEffect(async () => {
     let uid = userId;
@@ -19,7 +23,7 @@ const PlanIt = ({ gameId }) => {
       uid = (await newUser()).user_id;
       setUserId(uid);
     }
-    setGame(new PlanItGame(uid, setUserId, gameId));
+    setGame(new PlanItGame(navigate, device, uid, setUserId, gameId));
 
     return () => game.destruct();
   }, []);
