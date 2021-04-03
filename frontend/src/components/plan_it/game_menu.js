@@ -58,7 +58,7 @@ class GameMenu {
     }
     menuPanel.height = 0.9;
 
-    const titleImage = new Image("title", thrive);
+    const titleImage = new Image("title_image", thrive);
     titleImage.height = "200px";
     menuPanel.addControl(titleImage);
 

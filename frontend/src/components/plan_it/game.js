@@ -96,8 +96,12 @@ class PlanItGame {
   async pollGameState() {
     if (this.gameState.state == GAME_STATE.LOBBY || this.gameState.state == GAME_STATE.GAME) {
       const gameState = await fetchGame(this.userId, this.gameId);
+      if (!gameState) {
+        this.navigate("/planit");
+        return;
+      }
       assignIn(this.gameState, gameState);
-      console.log("gameState: ", this.gameState);
+      //console.log("gameState: ", this.gameState);
       if (this.gameState.state == GAME_STATE.LOBBY && gameState.started) {
         this.goToGame();
       } else if (this.gameState.state == GAME_STATE.LOBBY) {
@@ -109,7 +113,12 @@ class PlanItGame {
 
   async navToGame(gameId) {
     this.gameId = gameId;
-    assignIn(this.gameState, await fetchGame(this.userId, gameId));
+    const gameState = await fetchGame(this.userId, gameId);
+    if (!gameState) {
+      this.navigate("/planit");
+      return;
+    }
+    assignIn(this.gameState, gameState);
 
     if (this.gameState.started) {
       this.goToGame();
