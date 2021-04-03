@@ -4,33 +4,38 @@ import {
   Button,
   Control,
   InputText,
+  Image,
   ScrollViewer,
   StackPanel,
   TextBlock,
 } from "@babylonjs/gui/2D";
-import noop from "lodash/noop";
+import set from "lodash/set";
 import { assignIn } from "lodash";
 
 import { createGame, getUserGames, joinGame, leaveGame, startGame } from "./api";
 import GAME_STATE from "./game_state";
-import { DEVICES } from "../use_media_qry";
 import styles from "./plan_it.scss";
 
+import thrive from "../../assets/images/thrive.png";
 import background from "../../assets/textures/fieldPath.jpg";
+import mobileBackgound from "../../assets/textures/fieldPath_mob.jpg";
+import woodPanel from "../../assets/images/woodPanel.jpg";
+import woodPanelMob from "../../assets/images/woodPanel_mob.jpg";
 
 const MAX_PLAYERS = 4;
 
 
 class GameMenu {
-  constructor(navigate, device, userId, setUserId, gameState, gameScene, gameId) {
+  constructor(navigate, isDesktop, userId, setUserId, gameState, gameScene, gameId) {
     this.navigate = navigate;
-    this.device = device;
+    this.isDesktop = isDesktop;
     this.userId = userId;
     this.setUserId = setUserId;
     this.gameState = gameState;
     this.gameScene = gameScene;
     this.gameId = gameId;
     this.games = [];
+    this.background = isDesktop ? background : mobileBackgound;
   }
 
   async createGame(playerName) {
@@ -43,7 +48,7 @@ class GameMenu {
     this.navigate(`/planit/${this.gameState.id}`);
   }
 
-  createMainMenu(mobileMenu=false) {
+  createMainMenu(mobileMenu=false, params={}) {
     const menuPanel = new StackPanel();
     if (mobileMenu) {
       menuPanel.width = 0.85;
@@ -53,85 +58,98 @@ class GameMenu {
     }
     menuPanel.height = 0.9;
 
-    const title = this.addTextBlock(
-      menuPanel, {
-        height: "150px", top: "0px", fontSize: 48, text: "Title"
-      },
-    );
-    title.paddingBottom = "50px";
+    const titleImage = new Image("title", thrive);
+    titleImage.height = "200px";
+    menuPanel.addControl(titleImage);
 
     const input = this.getInput("Player 1", { paddingBottom: "60px", height: "100px" });
     menuPanel.addControl(input);
     this.addGUIButton("create_game", menuPanel, {
-      text: "Create Game", top: "200px", padding: "20px", callback: () => this.createGame(input.text),
+      text: "Create Game", top: "200px", paddingBottom: "20px", callback: () => this.createGame(input.text),
     });
     this.addGUIButton("join_game", menuPanel, {
-      text: "Join Game", top: "300px", padding: "20px", callback: () => this.goToJoin(input.text),
+      text: "Join Game", top: "300px", paddingBottom: "20px", callback: () => this.goToJoin(input.text),
     });
     this.addGUIButton("options", menuPanel, {
-      text: "Options (tbd lol)", top: "400px", padding: "20px", callback: () => {},
+      text: "Options (tbd lol)", top: "400px", paddingBottom: "20px", callback: () => {},
     });
     if (mobileMenu) {
       this.addGUIButton("games_link", menuPanel, {
-        text: "Your Games", top: "500px", padding: "20px", callback: () => this.goToGamesList(),
+        text: "Your Games", height: "55px", callback: () => {
+          // TODO implement routing which can handle back-nav without refreshing canvas
+          this.goToGamesList();
+        },
       });
     }
 
+    Object.keys(params).forEach(path => set(menuPanel, path, params[path]));
     return menuPanel;
   }
 
-  createGamesList(mobileMenu=false) {
-    // TODO put it all on one panel and return that (don't refer to this.guiMenu here)
-    const panelWidth = mobileMenu ? 0.85 : 0.4;
-    const gamesHeader = this.addTextBlock(
-      this.guiMenu, {
-        top: "0px",
+  createGamesList(params={}) {
+    const gamesPanel = new StackPanel();
+    const panelBackground = new Image("panel", this.isDesktop ? woodPanel : woodPanelMob);
+    gamesPanel.addControl(panelBackground);
+    this.addTextBlock(
+      gamesPanel, {
+        alpha: 1,
+        height: this.isDesktop ? "175px" : "250px",
         fontSize: 32,
+        paddingTop: this.isDesktop ? "25px" : "100px",
         text: "Your Games",
-        //left: "-150px",
-        width: panelWidth,
+        width: 1.0,
       }
     );
-    gamesHeader.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
 
     const gamesViewer = new ScrollViewer();
     gamesViewer.thickness = 0;
-    gamesViewer.height = 0.7;
-    gamesViewer.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
-    gamesViewer.width = panelWidth;
-    //gamesViewer.left = "-150px";
-    const gamesPanel = new StackPanel();
-    this.guiMenu.addControl(gamesViewer);
-    gamesViewer.addControl(gamesPanel);
+    gamesViewer.color = "#522";
+    gamesViewer.thumbLength = 0.25;
+    gamesViewer.barColor = styles.textColor;
+    gamesViewer.height = 0.65;
+    gamesViewer.width = 0.7;
+    const gameList = new StackPanel();
+    gamesPanel.addControl(gamesViewer);
+    gamesViewer.addControl(gameList);
     this.games.forEach((game) => {
       const gameStatus = game.started ? `Turn ${game.turn}` : "Lobby";
       const waitingFor = game.player_turn === game.player_name ? "Your Turn" : `Waiting for ${game.player_turn}`;
-      this.addGUIButton(game.id, gamesPanel, {
+      this.addGUIButton(game.id, gameList, {
         background: game.player_turn === game.player_name ? styles.yourTurnColor : styles.buttonColor,
         callback: () => { this.navigate(`/planit/${game.id}`); },
         text:
         `${gameStatus}        ${waitingFor}        ${game.players.join(" vs ")}`,
-        fontSize: 16,
+        "textBlock.fontSize": 16,
         leftJustify: true,
-        padding: "15px",
-        thickness: 1,
+        paddingBottom: "15px",
         width: 0.9,
         height: "75px"
       });
     });
+
+    Object.keys(params).forEach(path => set(gamesPanel, path, params[path]));
+    return gamesPanel;
   }
 
   async goToMenu() {
     const scene = this.gameScene.newScene();
-    scene.__background = new Layer("menuBackground", background, scene, true);
+    scene.__background = new Layer("menuBackground", this.background, scene, true);
 
     this.guiMenu = AdvancedDynamicTexture.CreateFullscreenUI("UI");
     this.guiMenu.idealHeight = 720;
 
-    if (this.device >= DEVICES.DESKTOP) {
+    if (this.isDesktop) {
       this.games = (await getUserGames(this.userId))["games"];
-      this.guiMenu.addControl(this.createMainMenu());
-      this.createGamesList();
+      this.guiMenu.addControl(this.createMainMenu(false, {
+        horizontalAlignment: Control.HORIZONTAL_ALIGNMENT_LEFT,
+        left: "10%",
+        width: 0.3,
+      }));
+      this.guiMenu.addControl(this.createGamesList({
+        height: 1.0,
+        horizontalAlignment: Control.HORIZONTAL_ALIGNMENT_RIGHT,
+        width: 0.5,
+      }));
     } else {
       this.guiMenu.addControl(this.createMainMenu(true));
     }
@@ -142,16 +160,17 @@ class GameMenu {
 
   async goToGamesList() {
     const scene = this.gameScene.newScene();
-    scene.__background = new Layer("menuBackground", background, scene, true);
+    scene.__background = new Layer("menuBackground", this.background, scene, true);
     this.games = (await getUserGames(this.userId))["games"];
 
     this.guiMenu = AdvancedDynamicTexture.CreateFullscreenUI("UI");
     this.guiMenu.idealHeight = 720;
 
-    this.addBackButton(async () => {
-      this.goToMenu();
-    });
-    this.createGamesList(true);
+    this.guiMenu.addControl(this.createGamesList({
+      height: 1.2,
+      width: 1.2,
+    }));
+    this.addBackButton(async () => { this.goToMenu(); });
 
     this.gameScene.setScene(scene);
     this.gameState.state = GAME_STATE.GAMES_LIST;
@@ -159,62 +178,66 @@ class GameMenu {
 
   async goToLobby() {
     const scene = this.gameScene.newScene();
-    scene.__background = new Layer("menuBackground", background, scene, true);
+    scene.__background = new Layer("menuBackground", this.background, scene, true);
 
     console.log("goToLobby");
     this.guiMenu = AdvancedDynamicTexture.CreateFullscreenUI("UI");
     this.guiMenu.idealHeight = 720;
 
     this.addBackButton(async () => {
+      this.gameState.state = GAME_STATE.MENU;
       this.navigate("/planit");
     });
-    const leaveButton = this.addGUIButton(
+
+    this.addGUIButton(
       "leave_game", this.guiMenu, {
-        text: "Leave Game", top: "75px", callback: async () => {
+        text: "Quit",
+        horizontalAlignment: Control.HORIZONTAL_ALIGNMENT_RIGHT,
+        left: "-20px",
+        top: "20px",
+        textBlock: { fontSize: 16 },
+        thickness: 1,
+        width: "120px",
+        height: "40px",
+        callback: async () => {
           await leaveGame(
             this.userId, this.gameState.id, this.gameState.player_name
           );
+          this.gameState.state = GAME_STATE.MENU;
           this.navigate("/planit");
-        }, fontSize: 20, thickness: 1, width: 0.1, height: "40px"
+        },
       }
     );
-    leaveButton.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
-    leaveButton.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
-    leaveButton.left = "-20px";
-    leaveButton.top = "-20px";
 
-    this.addGUIButton("game_link", this.guiMenu, {
+    const lobbyPanel = new StackPanel();
+    lobbyPanel.width = this.isDesktop ? 0.5 : 0.9;
+    lobbyPanel.top = "40px";
+    this.guiMenu.addControl(lobbyPanel);
+
+    this.addGUIButton("game_link", lobbyPanel, {
       text: "Copy Game Link",
-      top: "75px",
       thickness: 1,
-      width: 0.3,
-      height: "40px"
+      width: this.isDesktop ? 0.5 : 0.7,
+      height: "120px",
+      paddingBottom: "60px",
     });
-    this.addTextBlock(
-      this.guiMenu, {
-        top: "150px",
-        fontSize: 36,
-        text: `~   ${this.gameState.players[0]}   ~`,
-        width: 0.5,
-      },
-    );
-    for (let i = 0; i < MAX_PLAYERS - 1; ++i) {
-      const label = i >= this.gameState.players.length - 1
+    for (let i = 0; i < MAX_PLAYERS; ++i) {
+      const label = i >= this.gameState.players.length
         ? "~                   ~"
-        : `~   ${this.gameState.players[i + 1]}   ~`;
+        : `~   ${this.gameState.players[i]}   ~`;
       this.addTextBlock(
-        this.guiMenu, {
-          height: `${225 + i * 125}px`,
-          top: "150px",
+        lobbyPanel, {
+          height: "90px",
           fontSize: 36,
+          paddingBottom: "30px",
           text: label,
-          width: 0.5,
+          width: 0.75,
         }
       );
     }
     //for (let i = 0; i < 4 - this.numPlayers; ++i) { //this.addGUIButton( //`add_player${i}`, //"+", //`${400 - i * 70}px`, //() => { this.numPlayers = this.numPlayers + 1; this.goToLobby(playerName); }, //3, //0.03, //"30px", //); //}
-    this.addGUIButton("start", this.guiMenu, {
-      text: "Start", top: "500px", callback: () => {
+    this.addGUIButton("start", lobbyPanel, {
+      text: "Start", height: "90px", paddingTop: "20px", width: 0.75, callback: () => {
         startGame(this.userId, this.gameState.id);
       },
     });
@@ -225,7 +248,7 @@ class GameMenu {
 
   async goToJoin(playerName, gameId="Your game code...") {
     const scene = this.gameScene.newScene();
-    scene.__background = new Layer("menuBackground", background, scene, true);
+    scene.__background = new Layer("menuBackground", this.background, scene, true);
 
     this.guiMenu = AdvancedDynamicTexture.CreateFullscreenUI("UI");
     this.guiMenu.idealHeight = 720;
@@ -233,19 +256,23 @@ class GameMenu {
     this.addBackButton(async () => {
       this.goToMenu();
     });
-    const nameInput = this.getInput(playerName);
-    this.guiMenu.addControl(nameInput);
-    const gameIdInput = this.getInput(gameId);
-    gameIdInput.top = "250px";
-    this.guiMenu.addControl(gameIdInput);
+    const joinPanel = new StackPanel();
+    joinPanel.width = this.isDesktop ? 0.5 : 0.9;
+    this.guiMenu.addControl(joinPanel);
+
+    const nameInput = this.getInput(playerName, { height: "100px", paddingBottom: "50px" });
+    joinPanel.addControl(nameInput);
+    const gameIdInput = this.getInput(gameId, { height: "100px", paddingBottom: "50px" });
+    joinPanel.addControl(gameIdInput);
     const errorText = this.addTextBlock(
-      this.guiMenu, {
-        top: "500px", color: styles.errorTextColor, fontSize: 18, text: "", width: 0.9,
+      joinPanel, {
+        color: styles.errorTextColor, fontSize: 18, text: "", width: 0.9,
       },
     );
 
-    this.addGUIButton("join", this.guiMenu, {
-      text: "Join", top: "400px",
+    this.addGUIButton("join", joinPanel, {
+      text: "Join",
+      width: "300px",
       callback: async () => {
         assignIn(this.gameState, await joinGame(this.userId, gameIdInput.text, nameInput.text));
         if (!this.gameState) {
@@ -268,85 +295,63 @@ class GameMenu {
     this.gameState.state = GAME_STATE.JOIN;
   }
 
-  addGUIButton(name, parent, params) {
-    const {
-      text = "",
-      top = "100px",
-      background = styles.buttonColor,
-      callback = noop,
-      fontSize = 26,
-      padding = "0px",
-      thickness = 1,
-      width = 0.4,
-      color = "white",
-      textColor=styles.textColor,
-      height="80px",
-      leftJustify=false,
-    } = params;
+  addGUIButton(name, parent, params={}) {
+    const button = Button.CreateSimpleButton(name, params.text);
 
-    const button = Button.CreateSimpleButton(name, text);
-    button.width = width;
-    button.height = height;
-    button.color = color;
-    button.background = background;
+    // Defaults
+    //button.alpha = 0.8;
+    button.background = styles.buttonColor;
     button.cornerRadius = 10;
-    button.textBlock.color = textColor;
-    button.textBlock.fontSize = fontSize;
-    button.paddingBottom = padding;
-    button.thickness = thickness;
-    button.top = top;
+    button.height = "75px";
+    button.thickness = 0;
+    button.textBlock.color = styles.textColor;
+    button.textBlock.fontSize = 26;
     button.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
-    if (leftJustify) {
+    button.opacity = 0.5;
+
+    if (params.leftJustify) {
       button.textBlock.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
       button.textBlock.paddingLeft = "20px";
     }
 
-    button.onPointerUpObservable.add(() => {
-      callback();
-    });
+    button.onPointerUpObservable.add(params.callback);
 
+    delete params["callback"];
+    delete params["leftJustify"];
+
+    Object.keys(params).forEach(path => set(button, path, params[path]));
     parent.addControl(button);
     return button;
   }
 
   addTextBlock(parent, params) {
-    const {
-      height="100px",
-      top="100px",
-      color=styles.textColor,
-      fontSize=24,
-      text="",
-      left="0px",
-      width= "100px",
-    } = params;
-
     const textBlock = new TextBlock();
-    textBlock.height = height;
-    textBlock.top = top;
-    textBlock.color = color;
-    textBlock.fontSize = fontSize;
-    textBlock.text = text;
-    textBlock.left = left;
-    textBlock.width = width;
-    textBlock.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+    textBlock.color = styles.textColor,
+    textBlock.fontSize = 24;
 
+    Object.keys(params).forEach(key => textBlock[key] = params[key]);
     parent.addControl(textBlock);
     return textBlock;
   }
 
   addBackButton(callback) {
     const button = this.addGUIButton("back", this.guiMenu, {
-      text: "Back", top: "20px", callback, fontSize: 18, thickness: 1, width: 0.1, height: "20px",
+      text: this.isDesktop ? "Back" : "<",
+      top: "20px",
+      callback,
+      fontSize: 18,
+      horizontalAlignment: Control.HORIZONTAL_ALIGNMENT_LEFT,
+      left: "20px",
+      width: this.isDesktop ? "120px" : "40px",
+      height: "40px",
     });
-    button.left = "20px";
-    button.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
     return button;
   }
 
   getInput(text="Player 1", params={}) {
     const {
-      width = 0.4,
-      maxWidth = 0.4,
+      width = 1.0,
+      maxWidth = 1.0,
       paddingBottom = "0px",
       height = "50px",
       color = "white",

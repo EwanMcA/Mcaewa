@@ -26,5 +26,7 @@ export const useBreakpoint = () => {
   return largeDesktop || desktop || tablet || mobile || "xs";
 };
 
+export const isDesktop = () => useBreakpoint() >= DEVICES.DESKTOP;
+
 export const useMediaQry = width =>
   useMediaQuery({query: `(min-width: ${breakpoints[`${width}Breakpoint`]})`});

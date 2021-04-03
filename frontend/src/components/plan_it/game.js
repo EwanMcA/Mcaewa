@@ -42,9 +42,9 @@ const createBackground = (scene) => {
 };
 
 class PlanItGame {
-  constructor(navigate, device, userId, setUserId, gameId) {
+  constructor(navigate, isDesktop, userId, setUserId, gameId) {
     this.navigate = navigate;
-    this.device = device;
+    this.isDesktop = isDesktop;
     this.canvas = document.getElementById("PlanIt");
     this.engine = new Engine(this.canvas, true);
     this.gameScene = new GameScene(this.engine, this.canvas);
@@ -55,7 +55,7 @@ class PlanItGame {
     this.setUserId = setUserId;
     this.gameMenu = new GameMenu(
       navigate,
-      device,
+      isDesktop,
       userId,
       setUserId,
       this.gameState,
@@ -130,21 +130,23 @@ class PlanItGame {
     this.gameMenu.addTextBlock(
       this.guiMenu, {
         height: "30px",
-        top: "30px",
-        left: "50px",
+        top: "-20px",
+        verticalAlignment: Control.VERTICAL_ALIGNMENT_BOTTOM,
         text: this.gameState.player_name,
-        width: 0.1,
+        width: 1.0,
       },
     );
+    // TODO stack vertically across top
     const playersPanel = new StackPanel();
     this.gameState.players.forEach((name) => {
       this.gameMenu.addTextBlock(
-        playersPanel, { height: "30px", top: "30px", text: name },
+        playersPanel, { height: "30px", paddingLeft: "20px", width: "100px", text: name },
       );
     });
-    playersPanel.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
-    playersPanel.width = 0.25;
+    playersPanel.width = 0.75;
     playersPanel.height = 0.3;
+    playersPanel.isVertical = false;
+    playersPanel.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
     this.guiMenu.addControl(playersPanel);
 
     await scene.whenReadyAsync();
