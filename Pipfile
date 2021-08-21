@@ -10,6 +10,7 @@ django = "*"
 django-admin = "*"
 django-rest-framework = "*"
 django-cors-headers = "*"
+flask = "*"
 
 [requires]
 python_version = "3.6"

@@ -1,93 +1,53 @@
 import axios from "axios";
 
-export const newUser = async () => {
+const fetchWrapper = async (url, params) => {
   try {
-    const response = await axios.get("/api/plan_it/user/new");
+    const response = await axios.get(url, params);
     return response.data;
   } catch(err) {
     console.log(err);
     return null;
   }
+};
+
+export const newUser = async () => {
+  return fetchWrapper("/api/plan_it/user/new");
 };
 
 export const getUser = async (userId) => {
-  try {
-    const response = await axios.get(`/api/plan_it/user/${userId}`);
-    return response.data;
-  } catch(err) {
-    console.log(err);
-    return null;
-  }
+  return fetchWrapper(`/api/plan_it/user/${userId}`);
 };
 
 export const getUserGames = async (userId) => {
-  try {
-    const response = await axios.get("/api/plan_it/user/games", {
-      params: { user_id: userId }
-    });
-    return response.data;
-  } catch(err) {
-    console.log(err);
-    return null;
-  }
-};
-
-export const fetchGame = async (userId, gameId) => {
-  try {
-    const response = await axios.get(`/api/plan_it/${gameId}`, {
-      params: { user_id: userId }
-    });
-    return response.data;
-  } catch(err) {
-    console.log(err);
-    return null;
-  }
+  return fetchWrapper("/api/plan_it/user/games", { params: { user_id: userId } });
 };
 
 export const createGame = async (userId, playerName) => {
-  try {
-    const response = await axios.get("/api/plan_it/new", {
-      params: { user_id: userId, player_name: playerName }
-    });
-    return response.data;
-  } catch(err) {
-    console.log(err);
-    return null;
-  }
+  return fetchWrapper("/api/plan_it/new", {
+    params: { user_id: userId, player_name: playerName }
+  });
+};
+
+export const fetchGame = async (userId, gameId) => {
+  return fetchWrapper(`/api/plan_it/${gameId}`, { params: { user_id: userId } });
 };
 
 export const joinGame = async (userId, gameId, playerName) => {
-  try {
-    const response = await axios.get(`/api/plan_it/join/${gameId}`, {
-      params: { user_id: userId, player_name: playerName }
-    });
-    return response.data;
-  } catch(err) {
-    console.log(err);
-    return null;
-  }
+  return fetchWrapper("/api/plan_it/join", {
+    params: { user_id: userId, player_name: playerName, game_id: gameId }
+  });
 };
 
 export const leaveGame = async (userId, gameId, playerName) => {
-  try {
-    const response = await axios.get(`/api/plan_it/leave/${gameId}`, {
-      params: { user_id: userId, player_name: playerName }
-    });
-    return response.data;
-  } catch(err) {
-    console.log(err);
-    return null;
-  }
+  return fetchWrapper("/api/plan_it/leave", {
+    params: { user_id: userId, player_name: playerName, game_id: gameId }
+  });
 };
 
 export const startGame = async (userId, gameId) => {
-  try {
-    const response = await axios.get(`/api/plan_it/start/${gameId}`, {
-      params: { user_id: userId }
-    });
-    return response.data;
-  } catch(err) {
-    console.log(err);
-    return null;
-  }
+  return fetchWrapper("/api/plan_it/start", { params: { user_id: userId, game_id: gameId } });
+};
+
+export const endTurn = async (userId, gameId) => {
+  return fetchWrapper("/api/plan_it/end_turn", { params: { user_id: userId, game_id: gameId } });
 };

@@ -10,6 +10,7 @@ import dash from "./dash.png";
 import diamond from "./coolDiamond.png";
 import gravSim from "./gravSim.png";
 import me from "./me.jpg";
+import routiner from "./routiner.jpg";
 import placeholder from "./placeholder.jpeg";
 import Tesselate from "../tessellate";
 import { DEVICES, useBreakpoint } from "../use_media_qry";
@@ -22,6 +23,7 @@ const CARDS = [
     description: "Who built this?",
     cover: (<img alt="avatar" className={styles.coverPic} src={me}/>),
     link: "dev",
+    comingSoon: true,
   },
   {
     title: "PlanIt",
@@ -34,18 +36,28 @@ const CARDS = [
     description: "Build you own card game",
     cover: (<img alt="cards" className={styles.coverPic} src={diamond}/>),
     link: "emagdrac",
+    comingSoon: true,
   },
   {
     title: "GravSim",
     description: "Gravity Simulation Game",
     cover: (<img alt="gravity" className={styles.coverPic} src={gravSim}/>),
     link: "gravsim",
+    comingSoon: true,
+  },
+  {
+    title: "RoutineR",
+    description: "Android app for life admin",
+    cover: (<img alt="routiner" className={styles.coverPic} src={routiner}/>),
+    link: "routiner",
+    comingSoon: true,
   },
   {
     title: "Dash",
     description: "Configurable Dashboard App",
     cover: (<img alt="dashboard" className={styles.coverPic} src={dash}/>),
     link: "dash",
+    comingSoon: true,
   },
 ];
 
@@ -64,6 +76,7 @@ const CardDisplay = () => {
               cover={card.cover}
               style={{ backgroundColor: "#CCF" }}
             >
+              { card.comingSoon && <span className={styles.comingSoon}>coming soon</span> }
               <Meta title={card.title} description={card.description} />
             </Card>
           </Link>

@@ -29,14 +29,15 @@ const PlanIt = ({ gameId }) => {
   }, []);
 
   return (
-    <Layout>
-      { desktop && (
-        <Sider collapsible collapsed={collapsed} onCollapse={() => setCollapsed(!collapsed)}/>
-      )}
-      <Content className={styles.gamePane}>
+    //<Layout>
+      // TODO this doesn't play nice with babylon for some reason
+      //{ desktop && (
+        //<Sider collapsible collapsed={collapsed} onCollapse={() => setCollapsed(!collapsed)}/>
+      //)}
+      <Content className={desktop ? styles.gamePane : styles.gamePane_mob}>
         <canvas id="PlanIt" width="1000" height="1000" className={styles.canvas}/>
       </Content>
-    </Layout>
+    //</Layout>
   );
 };
 

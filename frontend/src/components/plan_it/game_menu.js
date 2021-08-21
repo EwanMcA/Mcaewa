@@ -21,6 +21,7 @@ import background from "../../assets/textures/fieldPath.jpg";
 import mobileBackgound from "../../assets/textures/fieldPath_mob.jpg";
 import woodPanel from "../../assets/images/woodPanel.jpg";
 import woodPanelMob from "../../assets/images/woodPanel_mob.jpg";
+import woodPanelLong from "../../assets/images/woodPanelLong.jpg";
 
 const MAX_PLAYERS = 4;
 
@@ -41,7 +42,7 @@ class GameMenu {
   async createGame(playerName) {
     assignIn(this.gameState, await createGame(this.userId, playerName));
     if ("user_id" in this.gameState) {
-      console.log("resetting user id");
+      //console.log("resetting user id");
       this.setUserId(this.gameState["user_id"]);
     }
     this.gameId = this.gameState.id;
@@ -94,6 +95,7 @@ class GameMenu {
       gamesPanel, {
         alpha: 1,
         height: this.isDesktop ? "175px" : "250px",
+        fontFamily: styles.gameFont,
         fontSize: 32,
         paddingTop: this.isDesktop ? "25px" : "100px",
         text: "Your Games",
@@ -107,22 +109,25 @@ class GameMenu {
     gamesViewer.thumbLength = 0.25;
     gamesViewer.barColor = styles.textColor;
     gamesViewer.height = 0.65;
-    gamesViewer.width = 0.7;
+    gamesViewer.width = 0.8;
     const gameList = new StackPanel();
     gamesPanel.addControl(gamesViewer);
     gamesViewer.addControl(gameList);
     this.games.forEach((game) => {
       const gameStatus = game.started ? `Turn ${game.turn}` : "Lobby";
-      const waitingFor = game.player_turn === game.player_name ? "Your Turn" : `Waiting for ${game.player_turn}`;
+      const yourTurn = game.player_turn === game.player_name;
+      const waitingFor = yourTurn ? "Your Turn" : `Waiting for ${game.player_turn}`;
       this.addGUIButton(game.id, gameList, {
-        background: game.player_turn === game.player_name ? styles.yourTurnColor : styles.buttonColor,
+        background: yourTurn ? styles.yourTurnColor : styles.buttonColor,
         callback: () => { this.navigate(`/planit/${game.id}`); },
         text:
         `${gameStatus}        ${waitingFor}        ${game.players.join(" vs ")}`,
+        "textBlock.fontFamily": styles.gameFont,
         "textBlock.fontSize": 16,
+        "textBlock.color": yourTurn ? styles.altTextColor : styles.textColor,
         leftJustify: true,
         paddingBottom: "15px",
-        width: 0.9,
+        width: 0.8,
         height: "75px"
       });
     });
@@ -180,7 +185,6 @@ class GameMenu {
     const scene = this.gameScene.newScene();
     scene.__background = new Layer("menuBackground", this.background, scene, true);
 
-    console.log("goToLobby");
     this.guiMenu = AdvancedDynamicTexture.CreateFullscreenUI("UI");
     this.guiMenu.idealHeight = 720;
 
@@ -281,7 +285,7 @@ class GameMenu {
           errorText.text = this.gameState["msg"];
         } else {
           if ("user_id" in this.gameState) {
-            console.log("resetting user id");
+            //console.log("resetting user id");
             this.setUserId(this.gameState["user_id"]);
             this.userId = this.gameState["user_id"];
           }
@@ -295,6 +299,75 @@ class GameMenu {
     this.gameState.state = GAME_STATE.JOIN;
   }
 
+  renderDesktopGameUI() {
+    this.guiMenu = AdvancedDynamicTexture.CreateFullscreenUI("UI");
+    this.guiMenu.idealHeight = 720;
+
+    const infoPanelTop = new Image("panel_top", woodPanelLong);
+    infoPanelTop.height = 0.1;
+    infoPanelTop.width = this.isDesktop ? 0.9 : 1;
+    infoPanelTop.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+    const infoPanelBottom = new Image("panel_bottom", woodPanelLong);
+    infoPanelBottom.height = 0.1;
+    infoPanelBottom.width = this.isDesktop ? 0.9 : 1;
+    infoPanelBottom.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
+
+    this.guiMenu.addControl(infoPanelTop);
+    this.guiMenu.addControl(infoPanelBottom);
+    this.addTextBlock(
+      this.guiMenu, {
+        color: styles.altTextColor,
+        height: 0.1,
+        verticalAlignment: Control.VERTICAL_ALIGNMENT_BOTTOM,
+        horizontalAlignment: Control.HORIZONTAL_ALIGNMENT_LEFT,
+        text: this.isDesktop
+          ? `${this.gameState.player_name}  Wood: 0  Brick: 0  Wheat: 0  Sheep: 0  Ore: 0`
+          : `${this.gameState.player_name}  W: 0  B: 0  Wh: 0  S: 0  O: 0`,
+        width: 1,
+      },
+    );
+    const playersPanel = new StackPanel();
+    playersPanel.width = this.isDesktop ? 0.9 : 1;
+    playersPanel.height = 0.1;
+    playersPanel.isVertical = false;
+    playersPanel.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+    this.gameState.players.forEach((name) => {
+      this.addTextBlock(
+        playersPanel, {
+          color: styles.altTextColor,
+          paddingLeft: this.isDesktop ? "20px" : "0px",
+          width: "200px",
+          text: name
+        },
+      );
+    });
+    this.guiMenu.addControl(playersPanel);
+
+    this.addGUIButton("undo", this.guiMenu, {
+      left: "10%",
+      top: "-10px",
+      height: "50px",
+      width: "50px",
+      text: "⎌",
+      disabledColor: "blue",
+      isEnabled: false,
+      callback: () => {},
+      horizontalAlignment: Control.HORIZONTAL_ALIGNMENT_LEFT,
+      verticalAlignment: Control.VERTICAL_ALIGNMENT_BOTTOM,
+    });
+
+    this.addGUIButton("end_turn", this.guiMenu, {
+      left: "-10%",
+      top: "-10px",
+      height: "50px",
+      width: "50px",
+      text: "✓",
+      callback: () => endTurn(this.userId, this.gameState.id),
+      horizontalAlignment: Control.HORIZONTAL_ALIGNMENT_RIGHT,
+      verticalAlignment: Control.VERTICAL_ALIGNMENT_BOTTOM,
+    });
+  }
+
   addGUIButton(name, parent, params={}) {
     const button = Button.CreateSimpleButton(name, params.text);
 
@@ -305,7 +378,9 @@ class GameMenu {
     button.height = "75px";
     button.thickness = 0;
     button.textBlock.color = styles.textColor;
+    button.textBlock.fontFamily = styles.gameFont;
     button.textBlock.fontSize = 26;
+
     button.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
     button.opacity = 0.5;
 

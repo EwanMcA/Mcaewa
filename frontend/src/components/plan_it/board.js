@@ -82,7 +82,7 @@ export const createBoard = (scene, gameState) => {
 
   for (let i = 0; i < 19; ++i) {
     // Hex tile
-    const tile = MeshBuilder.CreateDisc("disc", {radius: 11.5, tessellation: 6}, scene);
+    const tile = MeshBuilder.CreateDisc("disc", {radius: 11.4, tessellation: 6}, scene);
     const tileMat = new StandardMaterial("tile", scene);
     tileMat.diffuseTexture = new Texture(TILE_TEXTURES[gameState.hex_list[i]], scene);
     tile.position = new Vector3(TILES[i][0], TILES[i][1], -3);
@@ -94,7 +94,6 @@ export const createBoard = (scene, gameState) => {
 
     // Number tile
     if (!isDesert(i, gameState)) {
-      console.log(gameState);
       const num = gameState.num_list[i];
       const numMesh = MeshBuilder.CreateDisc("num", {radius: 2}, scene);
       const numTexture = new DynamicTexture("dynamic texture", {width:512, height:256}, scene);
@@ -103,7 +102,14 @@ export const createBoard = (scene, gameState) => {
       numMat.diffuseColor = new Color3(1.0, 0.9, 0.6);
       numMesh.material = numMat;
       var font = "bold 186px monospace";
-      numTexture.drawText(num, num > 9 ? 150 : 200, 200, font, "green", "white", false, true);
+      numTexture.drawText(num,
+        num > 9 ? 150 : 200,
+        200,
+        font,
+        num == 6 || num == 8 ? "red" : "green",
+        "white",
+        false,
+        true);
       numMesh.position = new Vector3(TILES[i][0], TILES[i][1], -5);
     }
 

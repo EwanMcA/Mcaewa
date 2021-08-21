@@ -59,7 +59,7 @@ module.exports = function (webpackEnv) {
       publicPath: "/",
       proxy: {
         "/api": {
-          target: "http://127.0.0.1:8000",
+          target: "http://192.168.0.161:9080",
           pathRewrite: { "^/api": "" },
         }
       },

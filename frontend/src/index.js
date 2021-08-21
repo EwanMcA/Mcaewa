@@ -17,6 +17,7 @@ render(
     <PlanIt path="/planit/:gameId"/>
     <ComingSoon path="/gravsim"/>
     <ComingSoon path="/emagdrac"/>
+    <ComingSoon path="/routiner"/>
   </Router>,
   rootEl,
 );

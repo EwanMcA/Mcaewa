@@ -3,6 +3,7 @@ import "@babylonjs/inspector";
 import "@babylonjs/loaders/glTF";
 import {
   Engine,
+  Mesh,
   MeshBuilder,
   StandardMaterial,
   Texture,
@@ -11,25 +12,34 @@ import {
 } from "@babylonjs/core";
 import {
   AdvancedDynamicTexture,
+  Image,
   Control,
   StackPanel,
 } from "@babylonjs/gui/2D";
 
 import { assignIn } from "lodash";
 
-import { fetchGame } from "./api";
+import { endTurn, fetchGame } from "./api";
 import { createBoard } from "./board";
 import GAME_STATE from "./game_state";
 import GameMenu from "./game_menu";
 import GameScene from "./game_scene";
+import styles from "./plan_it.scss";
 
 import water_col from "../../assets/textures/Water_002_COLOR.jpg";
 import water_norm from "../../assets/textures/Water_002_NORM.jpg";
 import water_spec from "../../assets/textures/Water_002_NORM.jpg";
 import water_disp from "../../assets/textures/Water_002_DISP.png";
+import woodPanel from "../../assets/images/woodPanelLong.jpg";
 
-const createBackground = (scene) => {
-  const board = MeshBuilder.CreateGround("board", {width: 300, height: 200, subdivisions: 500, updatable: true}, scene);
+const createBackground = (scene, isDesktop) => {
+  const board = MeshBuilder.CreateGround("board", {
+    width: isDesktop ? 300 : 200,
+    height: isDesktop ? 200 : 400,
+    subdivisions: 500,
+    updatable: true
+  }, scene);
+
   board.position = new Vector3(0, 25, 0);
   board.rotation = new Vector3(-Math.PI / 2, 0, 0);
   const oceanMat = new StandardMaterial("oceanMat");
@@ -41,6 +51,23 @@ const createBackground = (scene) => {
   board.material = oceanMat;
 };
 
+// TODO test this out and add it to a button
+function toggleFullScreen() {
+  var doc = window.document;
+  var docEl = doc.documentElement;
+
+  var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+  var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+
+  if(!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+    requestFullScreen.call(docEl);
+  }
+  else {
+    cancelFullScreen.call(doc);
+  }
+}
+
+
 class PlanItGame {
   constructor(navigate, isDesktop, userId, setUserId, gameId) {
     this.navigate = navigate;
@@ -49,6 +76,7 @@ class PlanItGame {
     this.engine = new Engine(this.canvas, true);
     this.gameScene = new GameScene(this.engine, this.canvas);
     this.gameState = {};
+    this.box = {};
 
     this.numPlayers = 1;
     this.userId = userId;
@@ -62,7 +90,9 @@ class PlanItGame {
       this.gameScene,
       gameId,
     );
-    setInterval(() => this.pollGameState(), 3000);
+    console.log("SETTING INTERVAL");
+    clearInterval(this.pollId);
+    this.pollId = setInterval(() => this.pollGameState(), 3000);
 
     if (gameId) {
       this.navToGame(gameId);
@@ -85,6 +115,8 @@ class PlanItGame {
       }
     });
 
+    //window.addEventListener("click", () => toggleFullScreen());
+
     // run the main render loop
     this.gameScene.render();
   }
@@ -94,6 +126,7 @@ class PlanItGame {
   }
 
   async pollGameState() {
+    console.log("state: ", this.gameState.state);
     if (this.gameState.state == GAME_STATE.LOBBY || this.gameState.state == GAME_STATE.GAME) {
       const gameState = await fetchGame(this.userId, this.gameId);
       if (!gameState) {
@@ -131,32 +164,17 @@ class PlanItGame {
     this.engine.displayLoadingUI();
     const scene = this.gameScene.newScene();
 
-    this.guiMenu = AdvancedDynamicTexture.CreateFullscreenUI("UI");
-    this.guiMenu.idealHeight = 720;
+    //scene.onPointerDown = function (evt, pickResult) {
+      //if (pickResult.hit) {
+          //box.position.x = pickResult.pickedPoint.x;
+          //box.position.y = pickResult.pickedPoint.y;
+      //}
+    //};
 
-    createBackground(scene);
+    createBackground(scene, this.isDesktop);
     createBoard(scene, this.gameState);
-    this.gameMenu.addTextBlock(
-      this.guiMenu, {
-        height: "30px",
-        top: "-20px",
-        verticalAlignment: Control.VERTICAL_ALIGNMENT_BOTTOM,
-        text: this.gameState.player_name,
-        width: 1.0,
-      },
-    );
-    // TODO stack vertically across top
-    const playersPanel = new StackPanel();
-    this.gameState.players.forEach((name) => {
-      this.gameMenu.addTextBlock(
-        playersPanel, { height: "30px", paddingLeft: "20px", width: "100px", text: name },
-      );
-    });
-    playersPanel.width = 0.75;
-    playersPanel.height = 0.3;
-    playersPanel.isVertical = false;
-    playersPanel.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
-    this.guiMenu.addControl(playersPanel);
+
+    this.gameMenu.renderDesktopGameUI();
 
     await scene.whenReadyAsync();
     this.engine.hideLoadingUI();

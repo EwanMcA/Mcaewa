@@ -1,17 +1,29 @@
+@import url("https://fonts.googleapis.com/css?family=Architects+Daughter");
+
 .canvas {
   height: 100%;
   width: 100%;
 }
 
 .gamePane {
-  height: 94vh;
-  margin: 3vh 3vw;
-  width: 94vw;
+  // TODO ant sidebar conflicts with babylon
+  //height: 94vh;
+  //margin: 3vh 3vw;
+  //width: 94vw;
+  height: 100vh;
+  width: 100vw;
+}
+
+.gamePane_mob {
+  height: 93vh;
+  width: 100vw;
 }
 
 :export {
   textColor: #C64;
+  altTextColor: #654321;
   errorTextColor: red;
   yourTurnColor: #5A4;
   buttonColor: #333;
+  gameFont: "Architects Daughter";
 }
